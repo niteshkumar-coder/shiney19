@@ -10,6 +10,8 @@ interface InteractiveZoneProps {
   onToggleMusic: () => void;
   onToggleMute: () => void;
   showWishPointer?: boolean;
+  showCutCakePointer?: boolean;
+  showCelebratePointer?: boolean;
   showMusicPointer?: boolean;
   isPlaying: boolean;
   isMuted: boolean;
@@ -24,6 +26,8 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
   onToggleMusic,
   onToggleMute,
   showWishPointer = false,
+  showCutCakePointer = false,
+  showCelebratePointer = false,
   showMusicPointer = false,
   isPlaying,
   isMuted,
@@ -50,7 +54,7 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
   return (
     <section
       id="interactive"
-      className="relative z-20 flex flex-col items-center justify-center px-4 py-14 sm:py-20 text-center"
+      className="relative z-20 scroll-mt-20 flex flex-col items-center justify-center px-4 py-14 sm:py-20 text-center"
     >
       {/* Glowing Neon Dashed Heart Sky Emblem */}
       <motion.div
@@ -142,7 +146,7 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
 
           <GuidedPointer
             visible={showWishPointer}
-            tooltip="Tap to make a birthday wish! 💗"
+            tooltip="Click here next! 💗"
             shape="circle"
             align="start"
             placement="bottom"
@@ -150,36 +154,56 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
         </div>
 
         {/* Button 2: Cut Cake */}
-        <motion.button
-          type="button"
-          onClick={handleCutCakeClick}
-          whileHover={{ scale: 1.06, y: -3 }}
-          whileTap={{ scale: 0.95 }}
-          className="group flex flex-col items-center justify-center w-32 h-32 sm:w-36 sm:h-36 rounded-full glass-purple border border-[#FFB6E6]/35 hover:border-[#FF4FCB] shadow-[0_12px_32px_rgba(185,154,255,0.22)] hover:shadow-[0_0_36px_rgba(255,79,203,0.55)] transition-all cursor-pointer p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
-        >
-          <span className="flex items-center justify-center w-11 h-11 rounded-full bg-[#B99AFF]/25 text-[#FFB6E6] mb-2 group-hover:scale-110 transition-transform">
-            <CakeSlice className="w-6 h-6 text-[#FFB6E6]" aria-hidden="true" />
-          </span>
-          <span className="text-xs sm:text-sm font-medium text-white whitespace-nowrap">
-            Cut Cake
-          </span>
-        </motion.button>
+        <div className="relative inline-flex justify-self-center">
+          <motion.button
+            type="button"
+            onClick={handleCutCakeClick}
+            whileHover={{ scale: 1.06, y: -3 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative z-10 group flex flex-col items-center justify-center w-32 h-32 sm:w-36 sm:h-36 rounded-full glass-purple border border-[#FFB6E6]/35 hover:border-[#FF4FCB] shadow-[0_12px_32px_rgba(185,154,255,0.22)] hover:shadow-[0_0_36px_rgba(255,79,203,0.55)] transition-all cursor-pointer p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
+          >
+            <span className="flex items-center justify-center w-11 h-11 rounded-full bg-[#B99AFF]/25 text-[#FFB6E6] mb-2 group-hover:scale-110 transition-transform">
+              <CakeSlice className="w-6 h-6 text-[#FFB6E6]" aria-hidden="true" />
+            </span>
+            <span className="text-xs sm:text-sm font-medium text-white whitespace-nowrap">
+              Cut Cake
+            </span>
+          </motion.button>
+
+          <GuidedPointer
+            visible={showCutCakePointer}
+            tooltip="Cut the cake next! 🎂"
+            shape="circle"
+            align="end"
+            placement="bottom"
+          />
+        </div>
 
         {/* Button 3: Celebrate */}
-        <motion.button
-          type="button"
-          onClick={onCelebrate}
-          whileHover={{ scale: 1.06, y: -3 }}
-          whileTap={{ scale: 0.95 }}
-          className="group flex flex-col items-center justify-center w-32 h-32 sm:w-36 sm:h-36 rounded-full glass-purple border border-[#FFB6E6]/35 hover:border-[#FFD780] shadow-[0_12px_32px_rgba(255,215,128,0.18)] hover:shadow-[0_0_36px_rgba(255,215,128,0.45)] transition-all cursor-pointer p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
-        >
-          <span className="flex items-center justify-center w-11 h-11 rounded-full bg-[#FFD780]/20 text-[#FFD780] mb-2 group-hover:scale-110 transition-transform">
-            <PartyPopper className="w-6 h-6 text-[#FFD780]" aria-hidden="true" />
-          </span>
-          <span className="text-xs sm:text-sm font-medium text-white whitespace-nowrap">
-            Celebrate
-          </span>
-        </motion.button>
+        <div className="relative inline-flex justify-self-center">
+          <motion.button
+            type="button"
+            onClick={onCelebrate}
+            whileHover={{ scale: 1.06, y: -3 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative z-10 group flex flex-col items-center justify-center w-32 h-32 sm:w-36 sm:h-36 rounded-full glass-purple border border-[#FFB6E6]/35 hover:border-[#FFD780] shadow-[0_12px_32px_rgba(255,215,128,0.18)] hover:shadow-[0_0_36px_rgba(255,215,128,0.45)] transition-all cursor-pointer p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
+          >
+            <span className="flex items-center justify-center w-11 h-11 rounded-full bg-[#FFD780]/20 text-[#FFD780] mb-2 group-hover:scale-110 transition-transform">
+              <PartyPopper className="w-6 h-6 text-[#FFD780]" aria-hidden="true" />
+            </span>
+            <span className="text-xs sm:text-sm font-medium text-white whitespace-nowrap">
+              Celebrate
+            </span>
+          </motion.button>
+
+          <GuidedPointer
+            visible={showCelebratePointer}
+            tooltip="Launch fireworks! 🎉"
+            shape="circle"
+            align="start"
+            placement="bottom"
+          />
+        </div>
 
         {/* Button 4: Play Music */}
         <div className="relative inline-flex justify-self-center">

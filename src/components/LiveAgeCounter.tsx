@@ -243,7 +243,7 @@ export const LiveAgeCounter: React.FC<LiveAgeCounterProps> = ({
     <section
       id="journey"
       aria-labelledby="journey-heading"
-      className="relative z-20 px-4 py-16 sm:py-22 text-center"
+      className="relative z-20 scroll-mt-20 px-4 py-16 sm:py-22 text-center"
     >
       <motion.div
         initial={{ opacity: 0, y: 24 }}

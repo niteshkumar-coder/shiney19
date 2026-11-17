@@ -1,11 +1,21 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { ArrowDown } from 'lucide-react';
+import { GuidedPointer } from './GuidedPointer';
 
-export const MessageSection: React.FC = () => {
+interface MessageSectionProps {
+  onContinueToWishes?: () => void;
+  showNextPointer?: boolean;
+}
+
+export const MessageSection: React.FC<MessageSectionProps> = ({
+  onContinueToWishes,
+  showNextPointer = false,
+}) => {
   return (
     <section
       id="message"
-      className="relative z-20 flex flex-col items-center justify-center px-4 py-16 sm:py-24"
+      className="relative z-20 scroll-mt-20 flex flex-col items-center justify-center px-4 py-16 sm:py-24"
     >
       <motion.div
         initial={{ opacity: 0, y: 28 }}
@@ -140,11 +150,36 @@ export const MessageSection: React.FC = () => {
                 </p>
               </div>
 
-              {/* Delicate glowing heart flourish line */}
-              <div className="mt-7 flex items-center gap-3 text-[#FFB6E6]/70" aria-hidden="true">
-                <span className="h-px flex-1 bg-gradient-to-r from-[#FF4FCB]/70 via-[#FFB6E6]/40 to-transparent" />
-                <span className="text-sm text-[#FF4FCB] neon-pink-text">♡</span>
-                <span className="h-px w-12 bg-gradient-to-l from-transparent to-[#FFB6E6]/40" />
+              {/* Delicate glowing heart flourish line + gentle next step */}
+              <div className="mt-7 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3 text-[#FFB6E6]/70 flex-1 min-w-[120px]" aria-hidden="true">
+                  <span className="h-px flex-1 bg-gradient-to-r from-[#FF4FCB]/70 via-[#FFB6E6]/40 to-transparent" />
+                  <span className="text-sm text-[#FF4FCB] neon-pink-text">♡</span>
+                  <span className="h-px w-8 bg-gradient-to-l from-transparent to-[#FFB6E6]/40" />
+                </div>
+
+                {onContinueToWishes && (
+                  <div className="relative inline-flex">
+                    <motion.button
+                      type="button"
+                      onClick={onContinueToWishes}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="relative z-10 inline-flex items-center gap-2 min-h-[44px] px-5 py-2 rounded-full text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#FF4FCB]/85 to-[#9D4EDD]/85 border border-[#FFB6E6]/45 shadow-[0_0_20px_rgba(255,79,203,0.35)] hover:shadow-[0_0_28px_rgba(255,79,203,0.6)] transition-shadow whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
+                    >
+                      <span>Make a Wish Next 💗</span>
+                      <ArrowDown className="w-3.5 h-3.5" aria-hidden="true" />
+                    </motion.button>
+
+                    <GuidedPointer
+                      visible={showNextPointer}
+                      tooltip="Click here next! 💗"
+                      shape="pill"
+                      align="end"
+                      placement="bottom"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

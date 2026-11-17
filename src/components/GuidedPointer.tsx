@@ -4,8 +4,11 @@ import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 export type GuideStep =
   | 'open-gift'
   | 'run-surprise'
-  | 'cut-cake'
+  | 'celebration-cake'
+  | 'read-message'
   | 'make-wish'
+  | 'cut-cake'
+  | 'celebrate-fireworks'
   | 'play-music'
   | 'done';
 

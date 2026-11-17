@@ -42,7 +42,7 @@ export const CelebrationSection: React.FC<CelebrationSectionProps> = ({
   return (
     <section
       id="surprise"
-      className="relative z-20 flex min-h-[92dvh] flex-col items-center justify-center px-4 pt-20 pb-14 text-center"
+      className="relative z-20 scroll-mt-20 flex min-h-[92dvh] flex-col items-center justify-center px-4 pt-20 pb-14 text-center"
     >
       {/* Glowing Neon Crown + Cursive Heading */}
       <motion.div

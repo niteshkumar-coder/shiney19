@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, type RefObject } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Heart, CakeSlice, PartyPopper, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { GuidedPointer } from './GuidedPointer';
@@ -13,6 +13,10 @@ interface InteractiveZoneProps {
   showCutCakePointer?: boolean;
   showCelebratePointer?: boolean;
   showMusicPointer?: boolean;
+  wishButtonRef?: RefObject<HTMLButtonElement | null>;
+  cutCakeButtonRef?: RefObject<HTMLButtonElement | null>;
+  celebrateButtonRef?: RefObject<HTMLButtonElement | null>;
+  playMusicButtonRef?: RefObject<HTMLButtonElement | null>;
   isPlaying: boolean;
   isMuted: boolean;
   audioSupported: boolean;
@@ -29,6 +33,10 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
   showCutCakePointer = false,
   showCelebratePointer = false,
   showMusicPointer = false,
+  wishButtonRef,
+  cutCakeButtonRef,
+  celebrateButtonRef,
+  playMusicButtonRef,
   isPlaying,
   isMuted,
   audioSupported,
@@ -130,6 +138,7 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
         {/* Button 1: Make a Wish */}
         <div className="relative inline-flex justify-self-center">
           <motion.button
+            ref={wishButtonRef}
             type="button"
             onClick={handleWishClick}
             whileHover={{ scale: 1.06, y: -3 }}
@@ -156,6 +165,7 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
         {/* Button 2: Cut Cake */}
         <div className="relative inline-flex justify-self-center">
           <motion.button
+            ref={cutCakeButtonRef}
             type="button"
             onClick={handleCutCakeClick}
             whileHover={{ scale: 1.06, y: -3 }}
@@ -182,6 +192,7 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
         {/* Button 3: Celebrate */}
         <div className="relative inline-flex justify-self-center">
           <motion.button
+            ref={celebrateButtonRef}
             type="button"
             onClick={onCelebrate}
             whileHover={{ scale: 1.06, y: -3 }}
@@ -208,6 +219,7 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
         {/* Button 4: Play Music */}
         <div className="relative inline-flex justify-self-center">
           <motion.button
+            ref={playMusicButtonRef}
             type="button"
             onClick={onToggleMusic}
             whileHover={{ scale: 1.06, y: -3 }}

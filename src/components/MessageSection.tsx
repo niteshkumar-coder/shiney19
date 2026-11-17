@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type RefObject } from 'react';
 import { motion } from 'motion/react';
 import { ArrowDown } from 'lucide-react';
 import { GuidedPointer } from './GuidedPointer';
@@ -6,11 +6,13 @@ import { GuidedPointer } from './GuidedPointer';
 interface MessageSectionProps {
   onContinueToWishes?: () => void;
   showNextPointer?: boolean;
+  continueButtonRef?: RefObject<HTMLButtonElement | null>;
 }
 
 export const MessageSection: React.FC<MessageSectionProps> = ({
   onContinueToWishes,
   showNextPointer = false,
+  continueButtonRef,
 }) => {
   return (
     <section
@@ -161,6 +163,7 @@ export const MessageSection: React.FC<MessageSectionProps> = ({
                 {onContinueToWishes && (
                   <div className="relative inline-flex">
                     <motion.button
+                      ref={continueButtonRef}
                       type="button"
                       onClick={onContinueToWishes}
                       whileHover={{ scale: 1.03 }}

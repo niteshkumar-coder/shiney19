@@ -97,6 +97,9 @@ export const JavaRevealTerminal: React.FC<JavaRevealTerminalProps> = ({
 
   const codeScrollRef = useRef<HTMLDivElement | null>(null);
   const logsScrollRef = useRef<HTMLDivElement | null>(null);
+  const runButtonRef = useRef<HTMLButtonElement | null>(null);
+  const hasScrolledToRunRef = useRef(false);
+  const scrollRafRef = useRef<number | null>(null);
 
   const totalChars = JAVA_SOURCE_CODE.length;
   const isComplete = progress >= 100 && visibleLogCount >= TERMINAL_LOGS.length;
@@ -163,6 +166,37 @@ export const JavaRevealTerminal: React.FC<JavaRevealTerminalProps> = ({
     }
   }, [visibleLogCount, isComplete]);
 
+  useEffect(() => {
+    if (!isComplete) {
+      hasScrolledToRunRef.current = false;
+    }
+    return () => {
+      if (scrollRafRef.current !== null) {
+        window.cancelAnimationFrame(scrollRafRef.current);
+        scrollRafRef.current = null;
+      }
+    };
+  }, [isComplete]);
+
+  const scrollToRunButton = () => {
+    if (hasScrolledToRunRef.current || isZoomingOut) return;
+    if (scrollRafRef.current !== null) {
+      window.cancelAnimationFrame(scrollRafRef.current);
+    }
+    scrollRafRef.current = window.requestAnimationFrame(() => {
+      scrollRafRef.current = window.requestAnimationFrame(() => {
+        scrollRafRef.current = null;
+        const btn = runButtonRef.current;
+        if (!btn || !btn.isConnected || hasScrolledToRunRef.current || isZoomingOut) return;
+        hasScrolledToRunRef.current = true;
+        btn.scrollIntoView({
+          behavior: reducedMotion ? 'auto' : 'smooth',
+          block: 'center',
+        });
+      });
+    });
+  };
+
   const displayedLines = useMemo(() => {
     return JAVA_SOURCE_CODE.slice(0, typedLength).split('\n');
   }, [typedLength]);
@@ -191,7 +225,7 @@ export const JavaRevealTerminal: React.FC<JavaRevealTerminalProps> = ({
           : { opacity: 1, scale: 1, filter: 'blur(0px)' }
       }
       transition={{ duration: 0.48, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#060813]/95 backdrop-blur-xl p-3 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-[#060813]/95 backdrop-blur-xl p-3 sm:p-6 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="java-terminal-title"
@@ -211,7 +245,7 @@ export const JavaRevealTerminal: React.FC<JavaRevealTerminalProps> = ({
         initial={{ opacity: 0, scale: 0.92, y: 18 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative z-10 w-full rounded-2xl border border-[#B99AFF]/30 bg-[#0A0F22]/95 shadow-[0_28px_90px_rgba(0,0,0,0.85),0_0_45px_rgba(255,79,203,0.18)] overflow-hidden flex flex-col ${
+        className={`relative z-10 my-auto w-full rounded-2xl border border-[#B99AFF]/30 bg-[#0A0F22]/95 shadow-[0_28px_90px_rgba(0,0,0,0.85),0_0_45px_rgba(255,79,203,0.18)] overflow-hidden flex flex-col ${
           isMaximized ? 'max-w-6xl min-h-[86dvh]' : 'max-w-5xl'
         }`}
         style={{ fontFamily: '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace' }}
@@ -394,7 +428,8 @@ export const JavaRevealTerminal: React.FC<JavaRevealTerminalProps> = ({
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: reducedMotion ? 0.01 : 0.4, ease: [0.16, 1, 0.3, 1] }}
+              onAnimationComplete={scrollToRunButton}
               className="border-t border-[#FF4FCB]/35 bg-gradient-to-r from-[#120A2A] via-[#1B0D35] to-[#120A2A] px-4 pt-5 pb-16 sm:px-6 text-center"
             >
               <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm font-semibold mb-4">
@@ -411,6 +446,7 @@ export const JavaRevealTerminal: React.FC<JavaRevealTerminalProps> = ({
 
               <div className="relative inline-flex">
                 <motion.button
+                  ref={runButtonRef}
                   type="button"
                   onClick={handleRunClick}
                   whileHover={{ scale: 1.04 }}

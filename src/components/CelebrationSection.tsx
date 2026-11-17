@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, type RefObject } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GuidedPointer } from './GuidedPointer';
 
@@ -7,6 +7,7 @@ interface CelebrationSectionProps {
   onCutCake: () => void;
   onCelebrate: () => void;
   showCutPointer?: boolean;
+  cutButtonRef?: RefObject<HTMLButtonElement | null>;
   reducedMotion: boolean;
 }
 
@@ -25,6 +26,7 @@ export const CelebrationSection: React.FC<CelebrationSectionProps> = ({
   onCutCake,
   onCelebrate,
   showCutPointer = false,
+  cutButtonRef,
   reducedMotion,
 }) => {
   const [litCandles, setLitCandles] = useState<boolean[]>(
@@ -321,6 +323,7 @@ export const CelebrationSection: React.FC<CelebrationSectionProps> = ({
       <div className="flex flex-wrap items-center justify-center gap-3.5 sm:gap-4 mt-2 pb-10 sm:pb-8">
         <div className="relative inline-flex">
           <motion.button
+            ref={cutButtonRef}
             type="button"
             onClick={handleCutButtonClick}
             whileHover={{ scale: 1.04 }}

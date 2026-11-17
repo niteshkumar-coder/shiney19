@@ -30,15 +30,24 @@ export default function App() {
   const [audioState, setAudioState] = useState(() => birthdayAudio.getState());
   const canvasRef = useRef<FireworksCanvasHandle | null>(null);
 
-  // Section refs for intelligent smooth scrolling
+  // Section and button refs for intelligent smooth scrolling
   const celebrationRef = useRef<HTMLDivElement | null>(null);
   const ageCounterRef = useRef<HTMLDivElement | null>(null);
   const messageRef = useRef<HTMLDivElement | null>(null);
   const interactiveRef = useRef<HTMLDivElement | null>(null);
 
+  const celebrationCutBtnRef = useRef<HTMLButtonElement | null>(null);
+  const messageContinueBtnRef = useRef<HTMLButtonElement | null>(null);
+  const wishBtnRef = useRef<HTMLButtonElement | null>(null);
+  const cutCakeBtnRef = useRef<HTMLButtonElement | null>(null);
+  const celebrateBtnRef = useRef<HTMLButtonElement | null>(null);
+  const playMusicBtnRef = useRef<HTMLButtonElement | null>(null);
+
   // Prevent overlapping scroll animations and stale guide transitions
   const pendingScrollTimerRef = useRef<number | null>(null);
+  const pendingScrollRafRef = useRef<number | null>(null);
   const pendingGuideTimerRef = useRef<number | null>(null);
+  const pendingRevealScrollRef = useRef(false);
   const userInteractedScrollRef = useRef(false);
 
   const isCelebrating = stage === 'celebrating';
@@ -47,6 +56,10 @@ export default function App() {
     if (pendingScrollTimerRef.current !== null) {
       window.clearTimeout(pendingScrollTimerRef.current);
       pendingScrollTimerRef.current = null;
+    }
+    if (pendingScrollRafRef.current !== null) {
+      window.cancelAnimationFrame(pendingScrollRafRef.current);
+      pendingScrollRafRef.current = null;
     }
   }, []);
 
@@ -69,19 +82,25 @@ export default function App() {
   );
 
   const scrollToRefCenter = useCallback(
-    (targetRef: RefObject<HTMLDivElement | null>) => {
-      const el = targetRef.current;
-      if (!el) return;
-      el.scrollIntoView({
-        behavior: prefersReducedMotion ? 'auto' : 'smooth',
-        block: 'center',
+    (targetRef: RefObject<HTMLElement | null>) => {
+      if (pendingScrollRafRef.current !== null) {
+        window.cancelAnimationFrame(pendingScrollRafRef.current);
+      }
+      pendingScrollRafRef.current = window.requestAnimationFrame(() => {
+        pendingScrollRafRef.current = null;
+        const el = targetRef.current;
+        if (!el || !el.isConnected) return;
+        el.scrollIntoView({
+          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          block: 'center',
+        });
       });
     },
     [prefersReducedMotion]
   );
 
   const scheduleAutoScroll = useCallback(
-    (targetRef: RefObject<HTMLDivElement | null>, delayMs: number) => {
+    (targetRef: RefObject<HTMLElement | null>, delayMs: number) => {
       clearPendingScroll();
       userInteractedScrollRef.current = false;
 
@@ -169,24 +188,29 @@ export default function App() {
     }
   };
 
-  // Step 3 -> Step 4: RUN BIRTHDAY SURPRISE clicked -> Birthday Celebration centered + guide to cake
+  // Step 3 -> Step 4: RUN BIRTHDAY SURPRISE clicked -> wait for celebration reveal transition -> center Cut the Cake
   const handleRunSurpriseFromTerminal = () => {
     clearPendingScroll();
+    clearPendingGuide();
+    pendingRevealScrollRef.current = true;
     setStage('celebrating');
     setActiveNav('surprise');
     setGuideStep('celebration-cake');
     birthdayAudio.playSparkleChime();
     canvasRef.current?.launchFireworks(8);
     canvasRef.current?.burstConfetti(0.5, 0.42, 110);
+  };
 
-    window.requestAnimationFrame(() => {
-      scrollToRefCenter(celebrationRef);
-    });
+  const handleCelebrationRevealComplete = () => {
+    if (!pendingRevealScrollRef.current) return;
+    pendingRevealScrollRef.current = false;
+    scheduleAutoScroll(celebrationCutBtnRef, prefersReducedMotion ? 60 : 500);
   };
 
   const handleNavigate = (destination: NavDestination) => {
     clearPendingScroll();
     clearPendingGuide();
+    pendingRevealScrollRef.current = false;
     setActiveNav(destination);
 
     if (destination === 'home') {
@@ -204,17 +228,18 @@ export default function App() {
       setStage('celebrating');
       setGuideStep(destination === 'message' ? 'read-message' : 'celebration-cake');
       canvasRef.current?.launchFireworks(5);
-      window.setTimeout(() => {
-        scrollToRefCenter(targetRef);
-      }, 90);
+      scheduleAutoScroll(targetRef, 120);
       return;
     }
 
     scrollToRefCenter(targetRef);
   };
 
-  // Step 4 -> Step 5: Celebration Cake cut -> wait for cake animation -> smoothly scroll to Birthday Message (no auto-scroll away while reading)
+  // Step 4 -> Step 5: Celebration Cake cut -> wait for cake animation -> smoothly scroll to Birthday Message
   const handleCelebrationCutCake = () => {
+    clearPendingScroll();
+    clearPendingGuide();
+    pendingRevealScrollRef.current = false;
     setCakeCut(true);
     birthdayAudio.playSparkleChime();
     canvasRef.current?.burstConfetti(0.5, 0.48, 85);
@@ -226,14 +251,15 @@ export default function App() {
     }
   };
 
-  // Step 5 -> Step 6: Visitor clicks "Make a Wish Next" after reading message -> smoothly scroll to Interactive Zone -> Make a Wish pointer
+  // Step 5 -> Step 6: Visitor clicks "Make a Wish Next" after reading message -> smoothly scroll to Make a Wish button
   const handleContinueFromMessage = () => {
     clearPendingScroll();
+    clearPendingGuide();
     setGuideStep('make-wish');
-    scrollToRefCenter(interactiveRef);
+    scrollToRefCenter(wishBtnRef);
   };
 
-  // Step 6 -> Step 7: Make a Wish clicked -> wait for shooting stars -> move pointer to Cut Cake
+  // Step 6 -> Step 7: Make a Wish clicked -> wait for shooting stars -> move pointer & scroll to Cut Cake
   const handleMakeWish = () => {
     clearPendingScroll();
     birthdayAudio.playWishChime();
@@ -244,10 +270,11 @@ export default function App() {
 
     if (guideStep === 'celebration-cake' || guideStep === 'read-message' || guideStep === 'make-wish') {
       scheduleGuideAdvance('cut-cake', 1150);
+      scheduleAutoScroll(cutCakeBtnRef, 1150);
     }
   };
 
-  // Step 7 -> Step 8: Cut Cake clicked in Interactive Zone -> wait for confetti -> move pointer to Fireworks Celebrate
+  // Step 7 -> Step 8: Cut Cake clicked in Interactive Zone -> wait for confetti -> move pointer & scroll to Celebrate
   const handleInteractiveCutCake = () => {
     clearPendingScroll();
     setCakeCut(true);
@@ -257,17 +284,20 @@ export default function App() {
 
     if (guideStep === 'cut-cake' || guideStep === 'make-wish' || guideStep === 'read-message') {
       scheduleGuideAdvance('celebrate-fireworks', 1200);
+      scheduleAutoScroll(celebrateBtnRef, 1200);
     }
   };
 
-  // Step 8 -> Step 9: Celebrate (Fireworks) clicked -> wait for fireworks -> move pointer to Play Music
+  // Step 8 -> Step 9: Celebrate (Fireworks) clicked -> wait for fireworks -> move pointer & scroll to Play Music
   const handleCelebrate = (fromInteractiveZone = false) => {
+    clearPendingScroll();
     birthdayAudio.playSparkleChime();
     canvasRef.current?.launchFireworks(7);
     canvasRef.current?.burstConfetti(0.5, 0.35, 70);
 
     if (guideStep === 'celebrate-fireworks') {
       scheduleGuideAdvance('play-music', 1350);
+      scheduleAutoScroll(playMusicBtnRef, 1350);
     } else if (!fromInteractiveZone && guideStep === 'celebration-cake') {
       setGuideStep('read-message');
       scheduleAutoScroll(messageRef, 1750);
@@ -287,6 +317,7 @@ export default function App() {
   const handleReplay = () => {
     clearPendingScroll();
     clearPendingGuide();
+    pendingRevealScrollRef.current = false;
     birthdayAudio.pause();
     setCakeCut(false);
     setStage('welcome');
@@ -363,13 +394,15 @@ export default function App() {
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: prefersReducedMotion ? 0.01 : 0.6, ease: [0.16, 1, 0.3, 1] }}
+            onAnimationComplete={handleCelebrationRevealComplete}
           >
             {/* Step 3-4: Birthday Celebration & Cake */}
             <div ref={celebrationRef} className="scroll-mt-20">
               <CelebrationSection
                 cakeCut={cakeCut}
                 showCutPointer={guideStep === 'celebration-cake'}
+                cutButtonRef={celebrationCutBtnRef}
                 onCutCake={handleCelebrationCutCake}
                 onCelebrate={() => handleCelebrate(false)}
                 reducedMotion={prefersReducedMotion}
@@ -386,6 +419,7 @@ export default function App() {
               <MessageSection
                 onContinueToWishes={handleContinueFromMessage}
                 showNextPointer={guideStep === 'read-message'}
+                continueButtonRef={messageContinueBtnRef}
               />
             </div>
 
@@ -401,6 +435,10 @@ export default function App() {
                 showCutCakePointer={guideStep === 'cut-cake'}
                 showCelebratePointer={guideStep === 'celebrate-fireworks'}
                 showMusicPointer={guideStep === 'play-music'}
+                wishButtonRef={wishBtnRef}
+                cutCakeButtonRef={cutCakeBtnRef}
+                celebrateButtonRef={celebrateBtnRef}
+                playMusicButtonRef={playMusicBtnRef}
                 isPlaying={audioState.isPlaying}
                 isMuted={audioState.isMuted}
                 audioSupported={audioState.audioSupported}

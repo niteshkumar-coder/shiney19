@@ -1,0 +1,209 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-cursive: "Dancing Script", "Playfair Display", cursive;
+  --color-obsidian: #10091F;
+  --color-plum: #24103F;
+  --color-neon-pink: #FF4FCB;
+  --color-light-pink: #FFB6E6;
+  --color-lavender: #B99AFF;
+  --color-gold: #FFD780;
+}
+
+@layer base {
+  html {
+    background-color: #10091F;
+    color: #FFFFFF;
+    font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: radial-gradient(circle at 50% 18%, #24103F 0%, #160B2E 45%, #10091F 100%);
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+}
+
+.font-display {
+  font-family: "Playfair Display", Georgia, serif;
+}
+
+.font-script {
+  font-family: "Dancing Script", "Playfair Display", cursive;
+}
+
+.neon-pink-text {
+  text-shadow:
+    0 0 12px rgba(255, 79, 203, 0.75),
+    0 0 28px rgba(255, 79, 203, 0.45),
+    0 0 54px rgba(185, 154, 255, 0.3);
+}
+
+.neon-gold-text {
+  text-shadow:
+    0 0 10px rgba(255, 215, 128, 0.7),
+    0 0 24px rgba(255, 182, 230, 0.35);
+}
+
+.glass-purple {
+  background: linear-gradient(
+    145deg,
+    rgba(36, 16, 63, 0.72) 0%,
+    rgba(22, 10, 42, 0.82) 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 182, 230, 0.22);
+  box-shadow:
+    0 24px 60px rgba(8, 3, 18, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) rotate(1.5deg);
+  }
+}
+
+@keyframes floatBalloon {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(-2deg);
+  }
+  50% {
+    transform: translate3d(0, -18px, 0) rotate(2.5deg);
+  }
+}
+
+@keyframes fairyTwinkle {
+  0%, 100% {
+    opacity: 0.72;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes candleFlicker {
+  0%, 100% {
+    transform: scale(1) skewX(0deg);
+    opacity: 0.95;
+  }
+  25% {
+    transform: scale(1.05, 0.96) skewX(2deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.96, 1.07) skewX(-2deg);
+    opacity: 0.9;
+  }
+  75% {
+    transform: scale(1.03, 0.98) skewX(1deg);
+    opacity: 1;
+  }
+}
+
+@keyframes heartRise {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.8);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.75;
+  }
+  85% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate3d(0, -120px, 0) scale(1.15);
+    opacity: 0;
+  }
+}
+
+@keyframes marqueeLeft {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes marqueeRight {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes balloonRiseBottom {
+  0% {
+    transform: translate3d(0, 20vh, 0) rotate(-3deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  85% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate3d(0, -115vh, 0) rotate(4deg);
+    opacity: 0;
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 5.5s ease-in-out infinite;
+}
+
+.animate-balloon {
+  animation: floatBalloon 6.5s ease-in-out infinite;
+}
+
+.animate-fairy {
+  animation: fairyTwinkle 3.2s ease-in-out infinite;
+}
+
+.animate-flame {
+  transform-origin: center bottom;
+  animation: candleFlicker 0.9s ease-in-out infinite;
+}
+
+.animate-heart-rise {
+  animation: heartRise 4.8s ease-in infinite;
+}
+
+.animate-marquee-left {
+  animation: marqueeLeft 34s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marqueeRight 40s linear infinite;
+}
+
+.animate-balloon-rise {
+  animation: balloonRiseBottom 11s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow,
+  .animate-balloon,
+  .animate-fairy,
+  .animate-flame,
+  .animate-heart-rise,
+  .animate-marquee-left,
+  .animate-marquee-right,
+  .animate-balloon-rise {
+    animation: none !important;
+  }
+}

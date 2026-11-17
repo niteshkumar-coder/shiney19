@@ -1,0 +1,8 @@
+{
+  "name": "Shiney's Birthday Surprise 💗",
+  "description": "A luxury purple and pink interactive birthday surprise website for Shiney featuring an animated 3D gift box, fireworks, cake cutting, instrumental music, and a personal birthday message.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

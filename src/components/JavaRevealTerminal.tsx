@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Terminal, CheckCircle2, Sparkles, Maximize2, Minimize2, X } from 'lucide-react';
+import { GuidedPointer } from './GuidedPointer';
 
 interface JavaRevealTerminalProps {
   onRunSurprise: () => void;
   onCancelToHome: () => void;
+  showPointer?: boolean;
   reducedMotion: boolean;
 }
 
@@ -83,6 +85,7 @@ function highlightJavaLine(line: string): React.ReactNode {
 export const JavaRevealTerminal: React.FC<JavaRevealTerminalProps> = ({
   onRunSurprise,
   onCancelToHome,
+  showPointer = false,
   reducedMotion,
 }) => {
   const [typedLength, setTypedLength] = useState(0);
@@ -392,7 +395,7 @@ export const JavaRevealTerminal: React.FC<JavaRevealTerminalProps> = ({
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="border-t border-[#FF4FCB]/35 bg-gradient-to-r from-[#120A2A] via-[#1B0D35] to-[#120A2A] px-4 py-5 sm:px-6 text-center"
+              className="border-t border-[#FF4FCB]/35 bg-gradient-to-r from-[#120A2A] via-[#1B0D35] to-[#120A2A] px-4 pt-5 pb-16 sm:px-6 text-center"
             >
               <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm font-semibold mb-4">
                 <span className="inline-flex items-center gap-1.5 text-[#4ADE80]">
@@ -406,15 +409,24 @@ export const JavaRevealTerminal: React.FC<JavaRevealTerminalProps> = ({
                 <span className="text-[#FFB6E6]">ACCESS GRANTED 💗</span>
               </div>
 
-              <motion.button
-                type="button"
-                onClick={handleRunClick}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="min-h-[50px] px-8 py-3.5 rounded-full font-sans font-semibold text-sm sm:text-base text-white bg-gradient-to-r from-[#FF4FCB] via-[#D946EF] to-[#8B5CF6] border border-[#FFB6E6]/55 shadow-[0_0_32px_rgba(255,79,203,0.6)] hover:shadow-[0_0_46px_rgba(255,79,203,0.85)] transition-all cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
-              >
-                RUN BIRTHDAY SURPRISE 🎉
-              </motion.button>
+              <div className="relative inline-flex">
+                <motion.button
+                  type="button"
+                  onClick={handleRunClick}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  className="relative z-10 min-h-[50px] px-8 py-3.5 rounded-full font-sans font-semibold text-sm sm:text-base text-white bg-gradient-to-r from-[#FF4FCB] via-[#D946EF] to-[#8B5CF6] border border-[#FFB6E6]/55 shadow-[0_0_32px_rgba(255,79,203,0.6)] hover:shadow-[0_0_46px_rgba(255,79,203,0.85)] transition-all cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
+                >
+                  RUN BIRTHDAY SURPRISE 🎉
+                </motion.button>
+
+                <GuidedPointer
+                  visible={showPointer && isComplete && !isZoomingOut}
+                  tooltip="Tap to launch the celebration! ✨"
+                  shape="pill"
+                  placement="bottom"
+                />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

@@ -12,6 +12,7 @@ import { LiveAgeCounter } from './components/LiveAgeCounter';
 import { InteractiveZone } from './components/InteractiveZone';
 import { MessageSection } from './components/MessageSection';
 import { FloatingControls } from './components/FloatingControls';
+import { type GuideStep } from './components/GuidedPointer';
 import { birthdayAudio } from './utils/birthdayAudio';
 
 type ExperienceStage = 'welcome' | 'terminal' | 'celebrating';
@@ -24,6 +25,7 @@ export default function App() {
   const [activeNav, setActiveNav] = useState<NavDestination>('home');
   const [cakeCut, setCakeCut] = useState(false);
   const [welcomeKey, setWelcomeKey] = useState(0);
+  const [guideStep, setGuideStep] = useState<GuideStep>('open-gift');
 
   const [audioState, setAudioState] = useState(() => birthdayAudio.getState());
   const canvasRef = useRef<FireworksCanvasHandle | null>(null);
@@ -43,17 +45,18 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [prefersReducedMotion]);
 
-  const scrollToElement = (id: string) => {
+  const scrollToElement = (id: string, block: ScrollLogicalPosition = 'start') => {
     window.requestAnimationFrame(() => {
       const el = document.getElementById(id);
       if (el) {
-        el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+        el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block });
       }
     });
   };
 
-  // Triggered when gift box finishes opening -> purple-pink flash -> Java IDE terminal
+  // Step 1 -> Step 2: Gift box clicked & opened -> glowing flash -> Java IDE terminal
   const handleGiftOpenComplete = () => {
+    setGuideStep('run-surprise');
     if (!prefersReducedMotion) {
       setShowLightFlash(true);
       window.setTimeout(() => {
@@ -67,10 +70,11 @@ export default function App() {
     }
   };
 
-  // Triggered when "RUN BIRTHDAY SURPRISE 🎉" is clicked inside the Java terminal
+  // Step 2 -> Step 3: "RUN BIRTHDAY SURPRISE 🎉" clicked -> grand celebration + guide to Cut Cake
   const handleRunSurpriseFromTerminal = () => {
     setStage('celebrating');
     setActiveNav('surprise');
+    setGuideStep('cut-cake');
     birthdayAudio.playSparkleChime();
     canvasRef.current?.launchFireworks(8);
     canvasRef.current?.burstConfetti(0.5, 0.42, 110);
@@ -83,6 +87,7 @@ export default function App() {
     if (destination === 'home') {
       setStage('welcome');
       setCakeCut(false);
+      setGuideStep('open-gift');
       setWelcomeKey((k) => k + 1);
       window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
       return;
@@ -90,6 +95,9 @@ export default function App() {
 
     if (stage !== 'celebrating') {
       setStage('celebrating');
+      setGuideStep((prev) =>
+        prev === 'open-gift' || prev === 'run-surprise' ? 'cut-cake' : prev
+      );
       canvasRef.current?.launchFireworks(5);
       window.setTimeout(() => {
         scrollToElement(destination === 'message' ? 'message' : 'surprise');
@@ -100,11 +108,30 @@ export default function App() {
     scrollToElement(destination === 'message' ? 'message' : 'surprise');
   };
 
-  const handleCutCake = () => {
+  // Step 3 -> Step 4: Cut Cake clicked -> celebrate -> advance pointer to Make a Wish
+  const handleCutCake = (fromInteractiveZone = false) => {
     setCakeCut(true);
     birthdayAudio.playSparkleChime();
     canvasRef.current?.burstConfetti(0.5, 0.48, 85);
     canvasRef.current?.launchFireworks(3);
+
+    if (guideStep === 'cut-cake') {
+      setGuideStep('make-wish');
+      if (!fromInteractiveZone) {
+        window.setTimeout(() => {
+          const interactiveEl = document.getElementById('interactive');
+          if (interactiveEl) {
+            const rect = interactiveEl.getBoundingClientRect();
+            if (rect.top > window.innerHeight * 0.72) {
+              interactiveEl.scrollIntoView({
+                behavior: prefersReducedMotion ? 'auto' : 'smooth',
+                block: 'center',
+              });
+            }
+          }
+        }, 1450);
+      }
+    }
   };
 
   const handleCelebrate = () => {
@@ -113,12 +140,25 @@ export default function App() {
     canvasRef.current?.burstConfetti(0.5, 0.35, 70);
   };
 
+  // Step 4 -> Step 5: Make a Wish clicked -> advance pointer to Play Music
   const handleMakeWish = () => {
     birthdayAudio.playWishChime();
     canvasRef.current?.triggerShootingStar();
     window.setTimeout(() => {
       canvasRef.current?.triggerShootingStar();
     }, 380);
+
+    if (guideStep === 'cut-cake' || guideStep === 'make-wish') {
+      setGuideStep('play-music');
+    }
+  };
+
+  // Step 5 -> Done: Play Music clicked -> hide guided pointer
+  const handleToggleMusic = () => {
+    birthdayAudio.togglePlay();
+    if (guideStep === 'play-music' || guideStep === 'make-wish' || guideStep === 'cut-cake') {
+      setGuideStep('done');
+    }
   };
 
   const handleReplay = () => {
@@ -126,6 +166,7 @@ export default function App() {
     setCakeCut(false);
     setStage('welcome');
     setActiveNav('home');
+    setGuideStep('open-gift');
     setWelcomeKey((k) => k + 1);
     window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
   };
@@ -159,6 +200,7 @@ export default function App() {
         {stage === 'terminal' && (
           <JavaRevealTerminal
             reducedMotion={prefersReducedMotion}
+            showPointer={guideStep === 'run-surprise'}
             onRunSurprise={handleRunSurpriseFromTerminal}
             onCancelToHome={handleReplay}
           />
@@ -184,6 +226,8 @@ export default function App() {
           <WelcomeScreen
             key={welcomeKey}
             reducedMotion={prefersReducedMotion}
+            showPointer={guideStep === 'open-gift'}
+            onGiftClick={() => setGuideStep('run-surprise')}
             onTriggerConfetti={() => {
               birthdayAudio.playSparkleChime();
               canvasRef.current?.burstConfetti(0.5, 0.52, 90);
@@ -199,7 +243,8 @@ export default function App() {
             {/* Page 2: Birthday Celebration */}
             <CelebrationSection
               cakeCut={cakeCut}
-              onCutCake={handleCutCake}
+              showCutPointer={guideStep === 'cut-cake'}
+              onCutCake={() => handleCutCake(false)}
               onCelebrate={handleCelebrate}
               reducedMotion={prefersReducedMotion}
             />
@@ -211,12 +256,14 @@ export default function App() {
             <InteractiveZone
               onMakeWish={handleMakeWish}
               onCutCake={() => {
-                handleCutCake();
+                handleCutCake(true);
                 scrollToElement('surprise');
               }}
               onCelebrate={handleCelebrate}
-              onToggleMusic={() => birthdayAudio.togglePlay()}
+              onToggleMusic={handleToggleMusic}
               onToggleMute={() => birthdayAudio.toggleMute()}
+              showWishPointer={guideStep === 'make-wish'}
+              showMusicPointer={guideStep === 'play-music'}
               isPlaying={audioState.isPlaying}
               isMuted={audioState.isMuted}
               audioSupported={audioState.audioSupported}
@@ -249,7 +296,7 @@ export default function App() {
         isPlaying={audioState.isPlaying}
         isMuted={audioState.isMuted}
         showReplay={isCelebrating}
-        onToggleMusic={() => birthdayAudio.togglePlay()}
+        onToggleMusic={handleToggleMusic}
         onToggleMute={() => birthdayAudio.toggleMute()}
         onReplay={handleReplay}
       />

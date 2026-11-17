@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Heart, CakeSlice, PartyPopper, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { GuidedPointer } from './GuidedPointer';
 
 interface InteractiveZoneProps {
   onMakeWish: () => void;
@@ -8,6 +9,8 @@ interface InteractiveZoneProps {
   onCelebrate: () => void;
   onToggleMusic: () => void;
   onToggleMute: () => void;
+  showWishPointer?: boolean;
+  showMusicPointer?: boolean;
   isPlaying: boolean;
   isMuted: boolean;
   audioSupported: boolean;
@@ -20,6 +23,8 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
   onCelebrate,
   onToggleMusic,
   onToggleMute,
+  showWishPointer = false,
+  showMusicPointer = false,
   isPlaying,
   isMuted,
   audioSupported,
@@ -117,22 +122,32 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
       </AnimatePresence>
 
       {/* 4 Large Circular Glassmorphism Buttons */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 sm:gap-7 max-w-3xl mx-auto">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-5 gap-y-14 sm:gap-7 pb-10 max-w-3xl mx-auto">
         {/* Button 1: Make a Wish */}
-        <motion.button
-          type="button"
-          onClick={handleWishClick}
-          whileHover={{ scale: 1.06, y: -3 }}
-          whileTap={{ scale: 0.95 }}
-          className="group flex flex-col items-center justify-center w-32 h-32 sm:w-36 sm:h-36 rounded-full glass-purple border border-[#FFB6E6]/35 hover:border-[#FF4FCB] shadow-[0_12px_32px_rgba(255,79,203,0.22)] hover:shadow-[0_0_36px_rgba(255,79,203,0.55)] transition-all cursor-pointer p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
-        >
-          <span className="flex items-center justify-center w-11 h-11 rounded-full bg-[#FF4FCB]/25 text-[#FFB6E6] mb-2 group-hover:scale-110 transition-transform">
-            <Heart className="w-6 h-6 fill-[#FF4FCB] text-[#FF4FCB]" aria-hidden="true" />
-          </span>
-          <span className="text-xs sm:text-sm font-medium text-white whitespace-nowrap">
-            Make a Wish
-          </span>
-        </motion.button>
+        <div className="relative inline-flex justify-self-center">
+          <motion.button
+            type="button"
+            onClick={handleWishClick}
+            whileHover={{ scale: 1.06, y: -3 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative z-10 group flex flex-col items-center justify-center w-32 h-32 sm:w-36 sm:h-36 rounded-full glass-purple border border-[#FFB6E6]/35 hover:border-[#FF4FCB] shadow-[0_12px_32px_rgba(255,79,203,0.22)] hover:shadow-[0_0_36px_rgba(255,79,203,0.55)] transition-all cursor-pointer p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
+          >
+            <span className="flex items-center justify-center w-11 h-11 rounded-full bg-[#FF4FCB]/25 text-[#FFB6E6] mb-2 group-hover:scale-110 transition-transform">
+              <Heart className="w-6 h-6 fill-[#FF4FCB] text-[#FF4FCB]" aria-hidden="true" />
+            </span>
+            <span className="text-xs sm:text-sm font-medium text-white whitespace-nowrap">
+              Make a Wish
+            </span>
+          </motion.button>
+
+          <GuidedPointer
+            visible={showWishPointer}
+            tooltip="Tap to make a birthday wish! 💗"
+            shape="circle"
+            align="start"
+            placement="bottom"
+          />
+        </div>
 
         {/* Button 2: Cut Cake */}
         <motion.button
@@ -167,29 +182,39 @@ export const InteractiveZone: React.FC<InteractiveZoneProps> = ({
         </motion.button>
 
         {/* Button 4: Play Music */}
-        <motion.button
-          type="button"
-          onClick={onToggleMusic}
-          whileHover={{ scale: 1.06, y: -3 }}
-          whileTap={{ scale: 0.95 }}
-          aria-pressed={isPlaying}
-          className={`group flex flex-col items-center justify-center w-32 h-32 sm:w-36 sm:h-36 rounded-full glass-purple border transition-all cursor-pointer p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780] ${
-            isPlaying
-              ? 'border-[#FF4FCB] shadow-[0_0_36px_rgba(255,79,203,0.6)]'
-              : 'border-[#FFB6E6]/35 hover:border-[#FF4FCB] shadow-[0_12px_32px_rgba(185,154,255,0.22)]'
-          }`}
-        >
-          <span className="flex items-center justify-center w-11 h-11 rounded-full bg-white/15 text-white mb-2 group-hover:scale-110 transition-transform">
-            {isPlaying ? (
-              <Pause className="w-6 h-6 text-[#FFD780]" aria-hidden="true" />
-            ) : (
-              <Play className="w-6 h-6 ml-0.5 text-white" aria-hidden="true" />
-            )}
-          </span>
-          <span className="text-xs sm:text-sm font-medium text-white whitespace-nowrap">
-            {isPlaying ? 'Pause Music' : 'Play Music'}
-          </span>
-        </motion.button>
+        <div className="relative inline-flex justify-self-center">
+          <motion.button
+            type="button"
+            onClick={onToggleMusic}
+            whileHover={{ scale: 1.06, y: -3 }}
+            whileTap={{ scale: 0.95 }}
+            aria-pressed={isPlaying}
+            className={`relative z-10 group flex flex-col items-center justify-center w-32 h-32 sm:w-36 sm:h-36 rounded-full glass-purple border transition-all cursor-pointer p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780] ${
+              isPlaying
+                ? 'border-[#FF4FCB] shadow-[0_0_36px_rgba(255,79,203,0.6)]'
+                : 'border-[#FFB6E6]/35 hover:border-[#FF4FCB] shadow-[0_12px_32px_rgba(185,154,255,0.22)]'
+            }`}
+          >
+            <span className="flex items-center justify-center w-11 h-11 rounded-full bg-white/15 text-white mb-2 group-hover:scale-110 transition-transform">
+              {isPlaying ? (
+                <Pause className="w-6 h-6 text-[#FFD780]" aria-hidden="true" />
+              ) : (
+                <Play className="w-6 h-6 ml-0.5 text-white" aria-hidden="true" />
+              )}
+            </span>
+            <span className="text-xs sm:text-sm font-medium text-white whitespace-nowrap">
+              {isPlaying ? 'Pause Music' : 'Play Music'}
+            </span>
+          </motion.button>
+
+          <GuidedPointer
+            visible={showMusicPointer}
+            tooltip="Play the birthday tune! 🎵"
+            shape="circle"
+            align="end"
+            placement="bottom"
+          />
+        </div>
       </div>
 
       {/* Inline Music Controls + Audio Fallback Notice */}

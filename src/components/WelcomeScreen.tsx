@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles } from 'lucide-react';
+import { GuidedPointer } from './GuidedPointer';
 
 interface WelcomeScreenProps {
   onOpenComplete: () => void;
   onTriggerConfetti: () => void;
+  onGiftClick?: () => void;
+  showPointer?: boolean;
   reducedMotion: boolean;
 }
 
@@ -13,12 +16,15 @@ type BoxPhase = 'idle' | 'shaking' | 'opening' | 'opened';
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onOpenComplete,
   onTriggerConfetti,
+  onGiftClick,
+  showPointer = false,
   reducedMotion,
 }) => {
   const [phase, setPhase] = useState<BoxPhase>('idle');
 
   const handleOpenGift = () => {
     if (phase !== 'idle') return;
+    onGiftClick?.();
 
     if (reducedMotion) {
       setPhase('opened');
@@ -266,16 +272,25 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       </div>
 
       {/* Primary CTA Button */}
-      <motion.button
-        type="button"
-        onClick={handleOpenGift}
-        disabled={phase !== 'idle'}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="mt-2 min-h-[48px] px-8 py-3.5 rounded-full font-medium text-sm sm:text-base text-white bg-gradient-to-r from-[#FF4FCB] via-[#E03BB8] to-[#9D4EDD] border border-[#FFB6E6]/45 shadow-[0_0_30px_rgba(255,79,203,0.5)] hover:shadow-[0_0_40px_rgba(255,79,203,0.75)] transition-shadow whitespace-nowrap cursor-pointer disabled:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
-      >
-        {phase === 'idle' ? 'Click to Open 🎁' : 'Opening Your Surprise... ✨'}
-      </motion.button>
+      <div className="relative inline-flex mt-2 mb-12">
+        <motion.button
+          type="button"
+          onClick={handleOpenGift}
+          disabled={phase !== 'idle'}
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
+          className="relative z-10 min-h-[48px] px-8 py-3.5 rounded-full font-medium text-sm sm:text-base text-white bg-gradient-to-r from-[#FF4FCB] via-[#E03BB8] to-[#9D4EDD] border border-[#FFB6E6]/45 shadow-[0_0_30px_rgba(255,79,203,0.5)] hover:shadow-[0_0_40px_rgba(255,79,203,0.75)] transition-shadow whitespace-nowrap cursor-pointer disabled:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
+        >
+          {phase === 'idle' ? 'Click to Open 🎁' : 'Opening Your Surprise... ✨'}
+        </motion.button>
+
+        <GuidedPointer
+          visible={showPointer && phase === 'idle'}
+          tooltip="Click here to open your surprise! 💗"
+          shape="pill"
+          placement="bottom"
+        />
+      </div>
     </section>
   );
 };

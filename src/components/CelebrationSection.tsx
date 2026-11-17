@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { GuidedPointer } from './GuidedPointer';
 
 interface CelebrationSectionProps {
   cakeCut: boolean;
   onCutCake: () => void;
   onCelebrate: () => void;
+  showCutPointer?: boolean;
   reducedMotion: boolean;
 }
 
@@ -22,6 +24,7 @@ export const CelebrationSection: React.FC<CelebrationSectionProps> = ({
   cakeCut,
   onCutCake,
   onCelebrate,
+  showCutPointer = false,
   reducedMotion,
 }) => {
   const [litCandles, setLitCandles] = useState<boolean[]>(
@@ -315,16 +318,25 @@ export const CelebrationSection: React.FC<CelebrationSectionProps> = ({
       </AnimatePresence>
 
       {/* Primary Cake & Fireworks Action Buttons */}
-      <div className="flex flex-wrap items-center justify-center gap-3.5 sm:gap-4 mt-2">
-        <motion.button
-          type="button"
-          onClick={handleCutButtonClick}
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.96 }}
-          className="min-h-[48px] px-7 py-3 rounded-full font-medium text-sm sm:text-base text-white bg-gradient-to-r from-[#FF4FCB] to-[#A855F7] border border-[#FFB6E6]/45 shadow-[0_0_24px_rgba(255,79,203,0.45)] hover:shadow-[0_0_36px_rgba(255,79,203,0.7)] transition-shadow whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
-        >
-          {cakeCut ? 'Cut Again 🎂' : 'Cut the Cake 🎂'}
-        </motion.button>
+      <div className="flex flex-wrap items-center justify-center gap-3.5 sm:gap-4 mt-2 pb-10 sm:pb-8">
+        <div className="relative inline-flex">
+          <motion.button
+            type="button"
+            onClick={handleCutButtonClick}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            className="relative z-10 min-h-[48px] px-7 py-3 rounded-full font-medium text-sm sm:text-base text-white bg-gradient-to-r from-[#FF4FCB] to-[#A855F7] border border-[#FFB6E6]/45 shadow-[0_0_24px_rgba(255,79,203,0.45)] hover:shadow-[0_0_36px_rgba(255,79,203,0.7)] transition-shadow whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD780]"
+          >
+            {cakeCut ? 'Cut Again 🎂' : 'Cut the Cake 🎂'}
+          </motion.button>
+
+          <GuidedPointer
+            visible={showCutPointer}
+            tooltip="Tap to cut the birthday cake! 🎂"
+            shape="pill"
+            placement="bottom"
+          />
+        </div>
 
         <motion.button
           type="button"
